@@ -1,4 +1,4 @@
-This is the prototype strategy & scouting database of FRC team Arctos 6135, using a MySQL database and nodejs with the Blue Alliance API for getting teams. It is still in development, but is has most of the key features of the old Arctos excel db.
+Based on FRC team Arctos 6135's prototype scouting database (https://github.com/Arctos6135/scouting-database), modified for a Data Management project on predictors of performance in the 2019 FRC game. Not intended for use in scouting, and not affiliated with the team. 
 
 **Installation**  
 
