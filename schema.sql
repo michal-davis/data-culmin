@@ -158,7 +158,18 @@ CREATE OR REPLACE VIEW denormalized_schedule AS
 		blue.alliance_id = b3.alliance_id 
         AND b3.driver_station = 3;
     
-
+CREATE TABLE team_at_event (
+	team_number INT NOT NULL,
+    event_code VARCHAR (32) NOT NULL,
+    qual_rank INT,
+    performance_district_points INT, -- ie all but awards
+    qual_dps INT,
+    selection_dps INT,
+    playoff_dps INT,
+    CONSTRAINT FOREIGN KEY (team_number) REFERENCES team (team_number) ON DELETE CASCADE,
+    CONSTRAINT FOREIGN KEY (event_code) REFERENCES frc_event (event_code) ON DELETE CASCADE,
+    UNIQUE (team_number, event_code)
+);
  -- not currently in use 
  DROP TABLE IF EXISTS alliance_member_outcome;
 CREATE TABLE alliance_member_outcome (
