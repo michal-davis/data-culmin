@@ -52,26 +52,9 @@ function all_teams(team_handler, no_more_teams, page=0) {
 	      });
 }
 
-function all_teams_from_district(district_key, team_handler, callback) {
-	var url =  endpoint + "/" + "district/" + district_key + "/" + "teams/" + "simple"
-    https.get(url,
-	      api_options(),
-	      (resp) => {
-		  let reply = "";
-
-		  resp.on('data', (chunk) => {
-		      reply += chunk;
-		  });
-		  
-		  resp.on('end', () => {
-				callback();
-				JSON.parse(reply)
-					.forEach(team => team_handler(team));
-			});
-		  
-	      }).on('error', (e) => {
-			  console.error(e);
-	      });
+function each_team_from_district(district_key, team_handler) {
+	tba_api_call("/" + "district/" + district_key + "/" + "teams/" + "simple",
+		(data) => data.forEach(team_handler));
 }
 
 // Get all the events for district 
@@ -134,11 +117,33 @@ function all_alliance_outcomes(event_key, outcome_handler) {
 				  console.error(e);
 			  });
 }
+
+//this unified caller will call the data_handler up to once
+//whoever calls it can choose to break the array up or keep it together
+function tba_api_call(url_arguments, data_handler){
+	var url = endpoint+url_arguments;
+	//console.log(url);
+	https.get(url,
+			api_options(),
+			(response) =>{
+				let reply = "";
+				response.on('data', (chunk) => {
+					reply += chunk;
+				});
+
+				response.on('end', () => data_handler(JSON.parse(reply)));
+			}).on('error', (err)=> {
+				console.error(err);
+			});
+}
+
 module.exports.all_teams = all_teams;
-module.exports.all_teams_from_district = all_teams_from_district;
+module.exports.each_team_from_district = each_team_from_district;
 module.exports.all_events = all_events;
 module.exports.matches_at_event = matches_at_event;
 module.exports.all_alliance_outcomes = all_alliance_outcomes;
+module.exports.tba_api_call = tba_api_call;
+
 
 // If run at top level, just show the teams.  This is for testing/demo purposes.
 if (require.main === module) {
