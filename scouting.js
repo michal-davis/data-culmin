@@ -3,9 +3,9 @@ var mysql = require('mysql');
 function get_connection() {
     return mysql.createConnection({
 	host     : 'localhost',
-	database : 'strategy',
-	user     : 'strategy',
-	password : 'foo',
+	database : 'data_culmin',
+	user     : 'data',
+	password : 'lieutenant',
     });
 }
 
