@@ -17,7 +17,8 @@ CREATE TABLE frc_match (
 	match_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     event_code VARCHAR (32),
     match_type ENUM('p', 'qm', 'qf', 'sf', 'f'),
-    series INT, -- only for playoff matches ex. quarterfinal [series] match [match_number]
+    series INT, -- only meaningful for playoff matches ex. quarterfinal [series] match [match_number]
+				-- =1 for qual and practice
 	match_number NUMERIC, -- assigned by event scheduler (ex. quals 4 or quarterfinal x match 2)
     CONSTRAINT FOREIGN KEY (event_code) REFERENCES frc_event (event_code) ON DELETE CASCADE,
     UNIQUE(event_code, match_type, series, match_number)
