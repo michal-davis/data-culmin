@@ -9,7 +9,7 @@ CREATE TABLE team (
 );
 DROP TABLE IF EXISTS frc_event;
 CREATE TABLE frc_event (
-	district VARCHAR (32),
+	district_key VARCHAR (32),
 	event_code VARCHAR (32) PRIMARY KEY
 );
 DROP TABLE IF EXISTS frc_match;

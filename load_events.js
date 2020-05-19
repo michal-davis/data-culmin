@@ -16,28 +16,28 @@ const district_keys = ["2019chs",
 						"2019pnw",
 						"2019tx"];
 
-async function load_events (connection, events) {
+async function load_events (connection, district_key, events) {
     if (!events) {
 	console.log("No events in that district");
 	connection.end();
     }
     console.log(`Loading ${events.length} events`);
-    await Promise.all(events.map(event => add_event(connection, event.key)))
+    await Promise.all(events.map(event => add_event(connection, district_key, event.key)))
 	.then(() => connection.end())
 	.catch((err) => console.error("Something went wrong: " + err));
     console.log("done");
 }
 
 //# Using connection to database, add event_code
-async function add_event(connection, event_code) {
+async function add_event(connection, district_key, event_code) {
     console.log(event_code);
     return new Promise(
 	(resolve, reject) => 
-	    connection.query("INSERT INTO frc_event (event_code) " +
-			     "VALUES(?) " +
+	    connection.query("INSERT INTO frc_event (district_key, event_code) " +
+			     "VALUES(?,?) " +
 			     "ON DUPLICATE KEY UPDATE event_code = event_code",
-			     [event_code],
-			     ((error, results, fields) => {
+			     [district_key, event_code],
+			     ((error) => {
 				 (error)
 				     ? reject(error)
 				     : resolve()    
@@ -52,6 +52,7 @@ async function add_event(connection, event_code) {
 if (require.main === module) {
     district_keys.map(district_key => db.with_connection(
 	connection =>
-	    tba.all_events_in_district(district_key, events => load_events(connection, events)
-			  )));
+	    tba.all_events_in_district(district_key, events => load_events(connection, district_key, events)
+			  )
+	));
 }
