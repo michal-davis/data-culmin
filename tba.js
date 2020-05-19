@@ -5,8 +5,6 @@ const https = require('https');
 
 const endpoint = "https://www.thebluealliance.com/api/v3";
 
-const district_key = "2019ont";
-
 // This is my API key.
 // Maybe should read from process.env to see if user has a different key?
 const api_key = "sX6YAEFTW4k2ovNN9IQKRhwFe5XArlokFHUU899aK6Vr4ZlbiA4tq36R4gKEmh6h";
@@ -52,30 +50,16 @@ function all_teams(team_handler, no_more_teams, page=0) {
 	      });
 }
 
-function each_team_from_district(district_key, team_handler) {
+async function all_teams_from_district(district_key, team_handler) {
 	tba_api_call("/" + "district/" + district_key + "/" + "teams/" + "simple",
-		(data) => data.forEach(team_handler));
+		team_handler);
 }
 
 // Get all the events for district 
 // Call event_handler for each one.
 // no_more_events is a function (of no args) called after all events have been read
-function all_events(event_handler) {
-    var url =  endpoint + "/" + "district/" + district_key + "/events/simple";
-    https.get(url,
-			  api_options(),   // TBA needs your account key
-			  (resp) => {
-			      // collect all the response data until there is no more
-			      let reply = "";
-			      resp.on('data', (chunk) => {
-				      // got more data from TBA, add it to the string
-				      reply += chunk;
-				  });
-		  
-			      resp.on('end', () => event_handler(JSON.parse(reply)));
-			  }).on('error', (e) => {
-			      console.error(e);
-			  });
+function all_events_in_district(district_key, event_handler) {
+	tba_api_call("/" + "district/" + district_key + "/events/simple", event_handler);
 }
 
 // Get all the matches for the specified event_code
@@ -120,7 +104,7 @@ function all_alliance_outcomes(event_key, outcome_handler) {
 
 //this unified caller will call the data_handler up to once
 //whoever calls it can choose to break the array up or keep it together
-function tba_api_call(url_arguments, data_handler){
+async function tba_api_call(url_arguments, data_handler){
 	var url = endpoint+url_arguments;
 	//console.log(url);
 	https.get(url,
@@ -138,8 +122,8 @@ function tba_api_call(url_arguments, data_handler){
 }
 
 module.exports.all_teams = all_teams;
-module.exports.each_team_from_district = each_team_from_district;
-module.exports.all_events = all_events;
+module.exports.all_teams_from_district = all_teams_from_district;
+module.exports.all_events_in_district = all_events_in_district;
 module.exports.matches_at_event = matches_at_event;
 module.exports.all_alliance_outcomes = all_alliance_outcomes;
 module.exports.tba_api_call = tba_api_call;

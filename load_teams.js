@@ -1,13 +1,8 @@
-//# Load all Ontario teams into the scouting db
-//this is expected to run only once per season
-
 const tba = require('./tba.js');
 const db = require('./scouting.js');
 
-
-//I got these manually. Could call districts/{year} but not really necessary
-const district_keys = ["2019chs", 
-						"2019fim", 
+const district_keys = ["2019chs",
+						"2019fim",
 						"2019fma", 
 						"2019fnc",
 						"2019in", 
@@ -16,30 +11,35 @@ const district_keys = ["2019chs",
 						"2019ont",
 						"2019pch",
 						"2019pnw",
-						"2019tx"];
-
-//# Using connection to database, add team_number with name
-function add_team(connection) {
-	return ((team_object) => {
-	console.log(team_object.team_number + " "  + team_object.nickname);
-	connection.query('INSERT INTO team (team_number, name) VALUES(?, ?) ON DUPLICATE KEY UPDATE team_number = team_number',
-					 [team_object.team_number, team_object.nickname],
-					 function (error) {
-						 if (error) {
-							 throw error;
-						 }
-					 });
-	});
+                        "2019tx"];
+                        
+async function load_teams(){
+    district_keys.map(district_key =>
+        db.with_connection(connection =>
+            tba.all_teams_from_district(district_key, teams => add_teams(connection, teams))
+        )
+    )
 }
 
-/* function is_Ontario(x) {
-	return x.state_prov == "Ontario";
-} */
+async function add_teams(connection, teams){
+    await Promise.all(teams.map(team => add_team(connection, team)))
+                .then(connection.end())
+                .catch(error => console.error(error));
+}
 
-if (require.main === module) {
-	db.with_connection(connection =>
-					   district_keys.forEach(district_key => 
-							tba.each_team_from_district(district_key, add_team(connection))
-							)
-						);
+async function add_team(connection, team_object) {
+	console.log(team_object.team_number + " "  + team_object.nickname);
+	return new Promise((resolve, reject) =>
+		connection.query('INSERT INTO team (team_number, name) VALUES(?, ?) ON DUPLICATE KEY UPDATE team_number = team_number',
+					 [team_object.team_number, team_object.nickname],
+					 (error =>
+						error
+						? reject(error)
+						: resolve())
+						)
+	);
+}
+
+if (require.main === module){
+    load_teams();
 }
