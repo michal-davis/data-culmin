@@ -65,21 +65,7 @@ function all_events_in_district(district_key, event_handler) {
 // Get all the matches for the specified event_code
 // call the match_handler with the list of all matches at that event.
 function matches_at_event(event_code, match_handler) {
-    var url =  endpoint + "/event/" + event_code + "/matches/simple";
-    https.get(url,
-			  api_options(),
-			  (resp) => {
-			      let reply = "";
-			      
-			      resp.on('data', (chunk) => {
-				  reply += chunk;
-			      });
-			      
-			      resp.on('end', () => match_handler(JSON.parse(reply)));
-			      
-	      }).on('error', (e) => {
-		  console.error(e);
-	      });
+    tba_api_call("/event/" + event_code + "/matches/simple", match_handler);
 }
 
 function all_alliance_outcomes(event_key, outcome_handler) {

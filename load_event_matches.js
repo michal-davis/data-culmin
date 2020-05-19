@@ -7,7 +7,7 @@ const db = require('./scouting.js');
 const RED = "red";
 const BLUE = "blue";
 
-async function load_matches(connection, matches) {
+async function handle_matches(connection, matches) {
     if (!matches) {
         console.error("No matches");
         connection.end();
@@ -49,10 +49,10 @@ async function load_match(connection, match) {
         return new Promise(
             (resolve, reject) => 
                 connection.query(
-                    "INSERT INTO frc_match (match_number, event_code, match_type)" +
-                        " VALUES(?, ?, ?)" +
+                    "INSERT INTO frc_match (event_code, match_type, series, match_number)" +
+                        " VALUES(?, ?,?, ?)" +
                         " ON DUPLICATE KEY UPDATE event_code = event_code",
-                    [match.match_number, match.event_key, match.comp_level],
+                    [match.event_key, match.comp_level,match.set_number, match.match_number],
                     (error) =>  (error) ? reject(error) : resolve(match)
                 )
         );
@@ -63,11 +63,12 @@ async function load_match(connection, match) {
         return new Promise(
             (resolve, reject) => 
                 connection.query(
-                    "SELECT match_id FROM frc_match" +
-                        " WHERE match_number = ?" +
-                        "   AND event_code = ?" +
-                        "   AND match_type = ?",
-                    [match.match_number, match.event_key, match.comp_level],
+                    `SELECT match_id FROM frc_match
+                        WHERE event_code = ? 
+                            AND match_type = ?
+                            AND series = ?
+                            AND match_number = ?`,
+                    [match.event_key, match.comp_level, match.set_number, match.match_number],
                     (error, results) => 
                         (error)
                         ? reject(error)  // something went wrong
@@ -82,9 +83,9 @@ async function load_match(connection, match) {
         return insertAlliance(match_id, colour)
             .then(() => getAllianceId(match_id, colour))
             .then(id => Promise.all([
-                insertTeam(id, get_team_number(colour, 0)),
-                insertTeam(id, get_team_number(colour, 1)),
-                insertTeam(id, get_team_number(colour, 2))]))
+                insertTeam(id, get_team_number(colour, 0),1),
+                insertTeam(id, get_team_number(colour, 1),2),
+                insertTeam(id, get_team_number(colour, 2),3)]))
         .catch(bad => console.warn(`While inserting alliance ${colour} for match ${match_id}: ${bad}`));
     }
 
@@ -97,7 +98,7 @@ async function load_match(connection, match) {
                         " VALUES (?, ?)" + 
                         "ON DUPLICATE KEY UPDATE match_id = match_id",
                     [match_id, colour],
-                    (error, results) => 
+                    (error) => 
                         (error) ? reject(error) : resolve()
                 ));
     }
@@ -125,14 +126,14 @@ async function load_match(connection, match) {
     }
 
     // Returns a Promise to insert a team
-    function insertTeam(alliance_id, team_number) {
+    function insertTeam(alliance_id, team_number, driver_station) {
         return new Promise(
             (resolve, reject) => 
                 connection.query(
-                    "INSERT INTO alliance_member (alliance_id, team_number)" +
-                        " VALUES (?, ?) " +
+                    "INSERT INTO alliance_member (alliance_id, team_number, driver_station)" +
+                        " VALUES (?, ?, ?) " +
                         " ON DUPLICATE KEY UPDATE team_number = team_number;",
-                    [alliance_id, team_number],
+                    [alliance_id, team_number, driver_station],
                     (error) => (error)
                         ? console.warn(`While inserting team ${team_number} into ${alliance_id}: ${error}`) || reject(error)
                         : resolve()
@@ -145,20 +146,21 @@ async function load_match(connection, match) {
         .then(m => getMatchId(m))
         .then(match_id => Promise.all([RED, BLUE].map(colour => insertAllianceAndTeams(match_id, colour))))
         .then(() => console.log(`Loaded ${match.event_key} ${match.match_number}`))
-        .catch(bad => console.warn("something went wrong " + bad.message));
+        .catch(error => console.warn("something went wrong " + error));
 
 }
 
-function is_qualifying(match){
-    return  match.comp_level == 'qm';
+function load_matches_at_event(event_code){
+    db.with_connection(connection =>  
+        tba.matches_at_event(event_code, matches => handle_matches(connection, matches)));
 }
 
 if (require.main === module) {
     var event_code = (process.argv.length < 3)
         ? (console.error("Missing argument: event_code") || process.exit())
         : process.argv[2];
-    db.with_connection(connection =>  
-                       tba.matches_at_event(event_code, matches => load_matches(connection, matches)));
+    load_matches_at_event(event_code)
+
 }
 
-module.exports.load_matches = load_matches;
+module.exports.load_matches_at_event = load_matches_at_event;
