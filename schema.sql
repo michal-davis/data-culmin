@@ -9,6 +9,7 @@ CREATE TABLE team (
 );
 DROP TABLE IF EXISTS frc_event;
 CREATE TABLE frc_event (
+	district VARCHAR (32),
 	event_code VARCHAR (32) PRIMARY KEY
 );
 DROP TABLE IF EXISTS frc_match;
@@ -90,12 +91,12 @@ CREATE TABLE tba_alliance_outcome (
     -- preloads
     cs_bay1_preload ENUM("nothing", "null_hatch", "cargo"),
 	cs_bay2_preload ENUM("nothing", "null_hatch", "cargo"),
-    cs_bay1_preload ENUM("nothing", "null_hatch", "cargo"),
-    cs_bay1_preload ENUM("nothing", "null_hatch", "cargo"),
-    cs_bay1_preload ENUM("nothing", "null_hatch", "cargo"),
-    cs_bay1_preload ENUM("nothing", "null_hatch", "cargo"),
-    cs_bay1_preload ENUM("nothing", "null_hatch", "cargo"),
-    cs_bay1_preload ENUM("nothing", "null_hatch", "cargo"),
+    cs_bay3_preload ENUM("nothing", "null_hatch", "cargo"),
+    cs_bay4_preload ENUM("nothing", "null_hatch", "cargo"),
+    cs_bay5_preload ENUM("nothing", "null_hatch", "cargo"),
+    cs_bay6_preload ENUM("nothing", "null_hatch", "cargo"),
+    cs_bay7_preload ENUM("nothing", "null_hatch", "cargo"),
+    cs_bay8_preload ENUM("nothing", "null_hatch", "cargo"),
     
     CONSTRAINT FOREIGN KEY (alliance_id) REFERENCES alliance (alliance_id) ON DELETE CASCADE
 );
@@ -157,7 +158,8 @@ CREATE OR REPLACE VIEW denormalized_schedule AS
 	INNER JOIN alliance_member b3 ON 
 		blue.alliance_id = b3.alliance_id 
         AND b3.driver_station = 3;
-    
+
+DROP TABLE IF EXISTS team_at_event;    
 CREATE TABLE team_at_event (
 	team_number INT NOT NULL,
     event_code VARCHAR (32) NOT NULL,
