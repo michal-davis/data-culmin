@@ -182,7 +182,7 @@ async function load_outcome(connection, outcome) {
 }
 function get_outcomes (event_code){
 	db.with_connection(connection =>  
-		tba.all_alliance_outcomes(event_code, outcomes => {
+		tba.all_match_outcomes(event_code, outcomes => {
 			console.log("got " + outcomes.length + " outcomes");
 			load_outcomes(connection, outcomes)}));
 }

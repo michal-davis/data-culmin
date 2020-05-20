@@ -14,42 +14,6 @@ function api_options() {
 			{"X-TBA-Auth-Key": api_key}};
 }
 
-// Get the teams.  Call a handler function for each team.
-// team_handler is a function that is called once for each team that the API returns
-// no_more_teams is a function (of no args) called after all teams have been read
-// page is an optional input used to get the next set of teams.
-function all_teams(team_handler, no_more_teams, page=0) {
-    var url =  endpoint + "/" + "teams/" + page + "/simple";
-    https.get(url,
-	      api_options(),   // TBA needs your account key
-	      (resp) => {
-		  // collect all the response data until there is no more
-		  let reply = "";
-		  resp.on('data', (chunk) => {
-		      // got more data from TBA, add it to the string
-		      reply += chunk;
-		  });
-		  
-		  resp.on('end', () => {
-		      // TBA got to the end of this page
-		      if (reply.length <= 2) {
-				  // we hit the last page so we are done
-				  no_more_teams();
-		      } else {
-				  // the reply is a JSON object we need to parse it
-				  //the result is an array of team objects, call team_handler for each one
-				  JSON.parse(reply)
-					  .forEach(team => team_handler(team));
-				  // now get the next page of teams
-				  all_teams(team_handler, no_more_teams, page+1);
-		      }
-		  });
-		  
-	      }).on('error', (e) => {
-			  console.error(e);
-	      });
-}
-
 async function all_teams_from_district(district_key, team_handler) {
 	tba_api_call("/" + "district/" + district_key + "/" + "teams/" + "simple",
 		team_handler);
@@ -68,24 +32,8 @@ function matches_at_event(event_code, match_handler) {
     tba_api_call("/event/" + event_code + "/matches/simple", match_handler);
 }
 
-function all_alliance_outcomes(event_key, outcome_handler) {
-    //ex. https://www.thebluealliance.com/api/v3/event/2019onosh/matches
-    var url =  endpoint + "/event/" + event_key + "/matches";
-    console.log(url);
-    https.get(url,
-			  api_options(),   // TBA needs your account key
-			  (resp) => {
-				  // collect all the response data until there is no more
-				  let reply = "";
-				  resp.on('data', (chunk) => {
-					  // got more data from TBA, add it to the string
-					  reply += chunk;
-				  });
-		  
-			      resp.on('end', () => outcome_handler(JSON.parse(reply)));
-			  }).on('error', (e) => {
-				  console.error(e);
-			  });
+function all_match_outcomes(event_key, outcome_handler) {
+    tba_api_call("/event/" + event_key + "/matches", outcome_handler);
 }
 
 //this unified caller will call the data_handler up to once
@@ -106,12 +54,10 @@ async function tba_api_call(url_arguments, data_handler){
 				console.error(err);
 			});
 }
-
-module.exports.all_teams = all_teams;
 module.exports.all_teams_from_district = all_teams_from_district;
 module.exports.all_events_in_district = all_events_in_district;
 module.exports.matches_at_event = matches_at_event;
-module.exports.all_alliance_outcomes = all_alliance_outcomes;
+module.exports.all_match_outcomes = all_match_outcomes;
 module.exports.tba_api_call = tba_api_call;
 
 
