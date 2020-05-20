@@ -180,15 +180,18 @@ async function load_outcome(connection, outcome) {
    
 	    
 }
-
+function get_outcomes (event_code){
+	db.with_connection(connection =>  
+		tba.all_alliance_outcomes(event_code, outcomes => {
+			console.log("got " + outcomes.length + " outcomes");
+			load_outcomes(connection, outcomes)}));
+}
 if (require.main === module) {
     console.log("running");
     var event_code = (process.argv.length < 3)
         ? (console.error("Missing argument: event_code") || process.exit())
         : process.argv[2];
-    console.log(event_code);
-    db.with_connection(connection =>  
-                       tba.all_alliance_outcomes(event_code, outcomes => {
-			   console.log("got " + outcomes.length + " outcomes");
-			   load_outcomes(connection, outcomes)}));
+    get_outcomes(event_code);
+    
 }
+module.exports.get_outcomes = get_outcomes;
