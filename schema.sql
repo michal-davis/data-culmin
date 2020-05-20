@@ -75,31 +75,31 @@ CREATE TABLE tba_alliance_outcome (
 	cs_bay8_cargo BOOLEAN,
     
     -- ints because there's two ports
-    rocket_left_low_hatch INT, 
-	rocket_left_low_cargo INT,
-	rocket_left_mid_hatch INT,
-	rocket_left_mid_cargo INT,
-    rocket_left_high_hatch INT,
-	rocket_left_high_cargo INT,
+    rocket_near_low_hatch INT, 
+	rocket_near_low_cargo INT,
+	rocket_near_mid_hatch INT,
+	rocket_near_mid_cargo INT,
+    rocket_near_high_hatch INT,
+	rocket_near_high_cargo INT,
     
-    rocket_right_low_hatch INT, 
-	rocket_right_low_cargo INT,
-	rocket_right_mid_hatch INT,
-	rocket_right_mid_cargo INT,
-    rocket_right_high_hatch INT,
-	rocket_right_high_cargo INT,
+    rocket_far_low_hatch INT, 
+	rocket_far_low_cargo INT,
+	rocket_far_mid_hatch INT,
+	rocket_far_mid_cargo INT,
+    rocket_far_high_hatch INT,
+	rocket_far_high_cargo INT,
 	
     -- preloads
-    cs_bay1_preload ENUM("nothing", "null_hatch", "cargo"),
-	cs_bay2_preload ENUM("nothing", "null_hatch", "cargo"),
-    cs_bay3_preload ENUM("nothing", "null_hatch", "cargo"),
-    cs_bay4_preload ENUM("nothing", "null_hatch", "cargo"),
-    cs_bay5_preload ENUM("nothing", "null_hatch", "cargo"),
-    cs_bay6_preload ENUM("nothing", "null_hatch", "cargo"),
-    cs_bay7_preload ENUM("nothing", "null_hatch", "cargo"),
-    cs_bay8_preload ENUM("nothing", "null_hatch", "cargo"),
+    -- bay 4 and 5 are omitted because they always have cargo 
+    cs_bay1_preload ENUM("null_hatch", "cargo"),
+	cs_bay2_preload ENUM("null_hatch", "cargo"),
+    cs_bay3_preload ENUM("null_hatch", "cargo"),
+    cs_bay6_preload ENUM("null_hatch", "cargo"),
+    cs_bay7_preload ENUM("null_hatch", "cargo"),
+    cs_bay8_preload ENUM("null_hatch", "cargo"),
     
-    CONSTRAINT FOREIGN KEY (alliance_id) REFERENCES alliance (alliance_id) ON DELETE CASCADE
+    CONSTRAINT FOREIGN KEY (alliance_id) REFERENCES alliance (alliance_id) ON DELETE CASCADE,
+    UNIQUE (alliance_id)
 );
 
 DROP TABLE IF EXISTS tba_alliance_member_outcome;
