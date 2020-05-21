@@ -167,6 +167,7 @@ CREATE TABLE team_at_event (
 	team_number INT NOT NULL,
     event_code VARCHAR (32) NOT NULL,
     qual_rank INT,
+    total_rps INT,
     performance_district_points INT, -- ie all but awards
     qual_dps INT,
     selection_dps INT,

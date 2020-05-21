@@ -32,8 +32,17 @@ function matches_at_event(event_code, match_handler) {
     tba_api_call("/event/" + event_code + "/matches/simple", match_handler);
 }
 
-function all_match_outcomes(event_key, outcome_handler) {
-    tba_api_call("/event/" + event_key + "/matches", outcome_handler);
+function all_match_outcomes(event_code, outcome_handler) {
+    tba_api_call("/event/" + event_code + "/matches", outcome_handler);
+}
+function all_event_team_outcomes(event_code, outcome_handler) {
+	tba_api_call("/event/" + event_code + "/district_points", outcome_handler)
+}
+function teams_at_event (event_code, team_handler) {
+	tba_api_call("/event/" + event_code + "/teams/simple", team_handler);
+}
+function event_team_rankings (event_code, ranking_handler) {
+	tba_api_call("/event/" + event_code + "/rankings", ranking_handler);
 }
 
 //this unified caller will call the data_handler up to once
@@ -58,12 +67,7 @@ module.exports.all_teams_from_district = all_teams_from_district;
 module.exports.all_events_in_district = all_events_in_district;
 module.exports.matches_at_event = matches_at_event;
 module.exports.all_match_outcomes = all_match_outcomes;
-module.exports.tba_api_call = tba_api_call;
-
-
-// If run at top level, just show the teams.  This is for testing/demo purposes.
-if (require.main === module) {
-	all_teams(team => console.log(`${team.team_number} ${team.nickname}`),
-			  () => {}
-			 );
-}
+module.exports.all_event_team_outcomes = all_event_team_outcomes;
+module.exports.teams_at_event = teams_at_event;
+module.exports.event_team_rankings = event_team_rankings;
+//module.exports.tba_api_call = tba_api_call;
