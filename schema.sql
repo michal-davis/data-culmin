@@ -110,6 +110,8 @@ CREATE TABLE tba_alliance_member_outcome (
     start_level INT,
     sand_line_cross BOOLEAN,
     endgame_level INT,
+    did_move BOOLEAN DEFAULT TRUE,
+    was_there BOOLEAN DEFAULT TRUE,
     
     CONSTRAINT FOREIGN KEY (team_number) REFERENCES team (team_number) ON DELETE CASCADE,
     CONSTRAINT FOREIGN KEY (alliance_id) REFERENCES alliance (alliance_id) ON DELETE CASCADE,
