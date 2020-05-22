@@ -1,6 +1,7 @@
 const db = require('./scouting.js');
 const alliance_outcome_loader = require('./load_event_alliance_outcomes.js');
 const alliance_member_outcome_loader = require('./load_event_alliance_member_outcomes');
+const team_outcome_loader = require('./load_event_team_outcomes.js');
 
 function get_events(connection, district_key){
     return new Promise((resolve, reject) =>
@@ -19,6 +20,7 @@ function load_outcomes (district_key){
             Promise.all(events.map(event => {
             alliance_outcome_loader.get_outcomes(event.event_code);
             alliance_member_outcome_loader.get_outcomes(event.event_code);
+            team_outcome_loader.get_outcomes(event.event_code);
             })); })
         .then(() => connection.end())
         .catch(error => console.warn("Something went wrong: " + error))
