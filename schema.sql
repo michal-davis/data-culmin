@@ -176,6 +176,32 @@ CREATE TABLE team_at_event (
     CONSTRAINT FOREIGN KEY (event_code) REFERENCES frc_event (event_code) ON DELETE CASCADE,
     UNIQUE (team_number, event_code)
 );
+
+-- run after getting data to correct for the x3 DP modifier at DCMP
+UPDATE team_at_event 
+SET performance_district_points = performance_district_points/3,
+qual_dps = qual_dps/3,
+selection_dps = selection_dps/3,
+playoff_dps = playoff_dps/3
+WHERE event_code = '2019oncmp' OR event_code = '2019oncmp1' OR event_code = '2019oncmp2';
+
+DROP TABLE IF EXISTS team_opr_data;
+CREATE TABLE team_opr_data (
+	team_number INT NOT NULL,
+    event_code VARCHAR (32) NOT NULL,
+    opr NUMERIC(10,3),
+    ccwm NUMERIC(10,3),
+    auto_opr NUMERIC(10,3),
+    hatch_opr NUMERIC(10,3),
+    cargo_opr NUMERIC(10,3),
+    endgame_opr NUMERIC(10,3),
+    foul_points_opr NUMERIC(10,3), 
+    fouls_committed_opr NUMERIC(10,3),
+    CONSTRAINT FOREIGN KEY (team_number) REFERENCES team (team_number) ON DELETE CASCADE,
+    CONSTRAINT FOREIGN KEY (event_code) REFERENCES frc_event (event_code) ON DELETE CASCADE,
+    UNIQUE (team_number, event_code)
+);
+
  -- not currently in use 
  DROP TABLE IF EXISTS alliance_member_outcome;
 CREATE TABLE alliance_member_outcome (
